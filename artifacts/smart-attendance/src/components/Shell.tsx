@@ -2,7 +2,7 @@ import React, { useState, useEffect, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   Menu, Search, Bell, ChevronDown, Check, MoreHorizontal, LogOut, CircleHelp,
-  Fingerprint, ArrowRight, Camera, Sparkles, type LucideIcon,
+  Fingerprint, ArrowRight, Camera, Sparkles, Home, BarChart3, ClipboardCheck, type LucideIcon,
 } from 'lucide-react';
 import type { Store, Role } from '../data';
 import { dataService } from '../data';
@@ -96,25 +96,39 @@ export function Shell({ store, children, onToast }: ShellProps) {
         </div>
 
         <nav className="side-nav" aria-label="Primary navigation">
-          {navSection('Core Platform', mainNav)}
-          {navSection('Campus Directory', peopleNav)}
-          {navSection('Security & Compliance', operationsNav)}
+          {store.currentUser.role === 'Student' ? (
+            <>
+              {navSection('Student Portal', [
+                { label: 'Attendance Check-In', href: '/verify', icon: Fingerprint },
+                { label: 'Student Dashboard', href: '/overview', icon: Home },
+                { label: 'Subject Analytics', href: '/analytics', icon: BarChart3 },
+                { label: 'Attendance Ledger', href: '/attendance', icon: ClipboardCheck },
+              ])}
+              {navSection('Account & Alerts', [
+                { label: 'Notifications', href: '/notifications', icon: Bell },
+                { label: 'Security & Passkey', href: '/settings', icon: Sparkles },
+              ])}
+            </>
+          ) : (
+            <>
+              {navSection('Core Platform', mainNav)}
+              {navSection('Campus Directory', peopleNav)}
+              {navSection('Security & Compliance', operationsNav)}
+            </>
+          )}
 
           <div className="nav-section">
             <div className="nav-caption">Student Quick Scan</div>
-            <button
-              type="button"
-              onClick={() => {
-                setMobileOpen(false);
-                setScannerOpen(true);
-              }}
+            <Link
+              href="/verify"
+              onClick={() => setMobileOpen(false)}
               className="button button-primary"
               style={{ width: '100%', height: '36px', fontSize: '11px', gap: '6px' }}
               data-testid="link-nav-verify-attendance"
             >
               <Camera size={15} />
               <span>SCAN ATTENDANCE QR</span>
-            </button>
+            </Link>
           </div>
         </nav>
 
@@ -259,6 +273,37 @@ export function Shell({ store, children, onToast }: ShellProps) {
           </span>
         </footer>
       </div>
+
+      {/* Mobile-First Fixed Bottom Navigation Bar for Student / Mobile Experience */}
+      <nav className="mobile-bottom-nav">
+        <Link href="/overview" className={`mobile-nav-item ${path === '/overview' ? 'is-active' : ''}`}>
+          <Home size={19} />
+          <span>Home</span>
+        </Link>
+        <Link href="/analytics" className={`mobile-nav-item ${path === '/analytics' ? 'is-active' : ''}`}>
+          <BarChart3 size={19} />
+          <span>Analytics</span>
+        </Link>
+        <Link
+          href="/verify"
+          className={`mobile-nav-scan-cta ${path === '/verify' ? 'is-active' : ''}`}
+          aria-label="Instant Scan Attendance QR"
+        >
+          <div className="mobile-scan-bubble">
+            <Camera size={22} />
+          </div>
+          <span>SCAN QR</span>
+        </Link>
+        <Link href="/attendance" className={`mobile-nav-item ${path === '/attendance' ? 'is-active' : ''}`}>
+          <ClipboardCheck size={19} />
+          <span>Ledger</span>
+        </Link>
+        <Link href="/notifications" className={`mobile-nav-item ${path === '/notifications' ? 'is-active' : ''}`}>
+          <Bell size={19} />
+          <span>Alerts</span>
+          {unread > 0 && <span className="mobile-badge-dot" />}
+        </Link>
+      </nav>
 
       {/* Global 3D QR Scanner Modal callable from any page */}
       <QrScannerModal

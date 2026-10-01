@@ -584,8 +584,12 @@ function StudentDashboard({ store, onToast }: { store: Store; onToast: (msg: str
   const studentClass = getClass(store, currentStudent.classId);
   const mySubjects = store.subjects.filter(s => s.classIds.includes(currentStudent.classId));
 
-  // State for opening 3D QR Scanner Modal
-  const [scannerOpen, setScannerOpen] = useState(false);
+  const isStudentCheckedIn = activeSession?.attendanceRecords.some(
+    r => r.studentId === currentStudent.id && r.status === 'Present'
+  );
+  const checkedInRec = activeSession?.attendanceRecords.find(
+    r => r.studentId === currentStudent.id && r.status === 'Present'
+  );
 
   return (
     <div className="page-stack page-enter">
@@ -604,7 +608,9 @@ function StudentDashboard({ store, onToast }: { store: Store; onToast: (msg: str
           <div className="student-attendance-stat-box">
             <span className="stat-big-pct">{currentPct}%</span>
             <span className="stat-subtitle">Overall Attendance</span>
-            <span className="stat-classes-attended">41 / 50 Classes Attended</span>
+            <span className="stat-classes-attended">
+              {currentPct >= threshold ? 'Eligible for Exams ✓' : '⚠ Below 75% Threshold'}
+            </span>
           </div>
 
           {/* LARGE PRIMARY ACTION: [ SCAN QR ] */}
@@ -622,26 +628,47 @@ function StudentDashboard({ store, onToast }: { store: Store; onToast: (msg: str
 
       {/* Active Session Notification Card if lecture is currently Live */}
       {activeSession && (
-        <Card style={{ padding: '16px 20px', background: 'rgba(0, 210, 255, 0.08)', border: '1px solid rgba(0, 210, 255, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span className="cyan-dot-pulse" />
-            <div>
-              <strong style={{ color: '#ffffff', fontSize: '14px', display: 'block' }}>
-                Lecture in Progress: {classLabel(store, activeSession.classId)}
-              </strong>
-              <span style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
-                Instructor is broadcasting rotating 15s challenge. Tap to verify attendance now.
-              </span>
+        isStudentCheckedIn ? (
+          <Card style={{ padding: '16px 20px', background: 'rgba(0, 230, 153, 0.08)', border: '1px solid rgba(0, 230, 153, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(0, 230, 153, 0.15)', display: 'grid', placeItems: 'center', color: '#00e699' }}>
+                <CheckCircle2 size={22} />
+              </div>
+              <div>
+                <strong style={{ color: '#ffffff', fontSize: '14px', display: 'block' }}>
+                  ✓ You're Marked Present for Today's Class!
+                </strong>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
+                  {classLabel(store, activeSession.classId)} · Checked in at {checkedInRec ? fmtTime(checkedInRec.time) : '10:48 AM'} via {checkedInRec?.verificationMethod || 'Dynamic QR'}
+                </span>
+              </div>
             </div>
-          </div>
-          <button
-            onClick={() => setScannerOpen(true)}
-            className="button button-primary"
-            style={{ height: '36px', padding: '0 16px', fontSize: '12px' }}
-          >
-            <Camera size={15} /> Verify Presence Now
-          </button>
-        </Card>
+            <span className="badge badge-green" style={{ fontSize: '12px', padding: '6px 12px' }}>
+              Confirmed Present
+            </span>
+          </Card>
+        ) : (
+          <Card style={{ padding: '16px 20px', background: 'rgba(0, 210, 255, 0.08)', border: '1px solid rgba(0, 210, 255, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span className="cyan-dot-pulse" />
+              <div>
+                <strong style={{ color: '#ffffff', fontSize: '14px', display: 'block' }}>
+                  Lecture in Progress: {classLabel(store, activeSession.classId)}
+                </strong>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
+                  Instructor is broadcasting live QR code. Tap to scan or enter code now.
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setScannerOpen(true)}
+              className="button button-primary"
+              style={{ height: '38px', padding: '0 18px', fontSize: '12px', fontWeight: 700 }}
+            >
+              <Camera size={15} /> Instant Check-In
+            </button>
+          </Card>
+        )
       )}
 
       {/* Dynamic Recovery Calculator & Warning System (Only for this student!) */}

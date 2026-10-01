@@ -2541,11 +2541,949 @@ td b {
 }
 
 /* ==========================================================================
+   TEACHER SESSION QR (3-COLUMN REAL-TIME STAGE)
+   ========================================================================== */
+
+.qr-stage-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Left Column: Dedicated Timer Aside */
+.timer-aside-card {
+  padding: 22px 20px;
+  border-radius: var(--radius-lg);
+  background: rgba(14, 20, 30, 0.85);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.timer-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.timer-gauge-container {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 16px;
+}
+
+.timer-circle-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 8;
+}
+
+.timer-circle-meter {
+  fill: none;
+  stroke: #00d2ff;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease;
+  filter: drop-shadow(0 0 6px rgba(0, 210, 255, 0.6));
+}
+
+.timer-gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-gauge-number {
+  font: 800 36px var(--app-font-display);
+  color: #ffffff;
+  line-height: 1;
+}
+
+.timer-gauge-unit {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #00d2ff;
+  margin-top: 4px;
+}
+
+.timer-status-box {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(0, 210, 255, 0.06);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  margin-bottom: 14px;
+}
+
+.timer-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.timer-status-hint {
+  margin: 4px 0 0;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.timer-stats-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.timer-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+
+.timer-stat-row span {
+  color: var(--text-secondary);
+}
+
+.timer-stat-row b, .timer-stat-row code {
+  color: #ffffff;
+}
+
+/* Center Stage: Clean QR Code (Unobstructed) */
+.qr-presentation-stage {
+  display: flex;
+  justify-content: center;
+}
+
+.qr-card-hero {
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(14, 20, 32, 0.9);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 210, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.qr-header-strip {
+  margin-bottom: 16px;
+}
+
+.qr-pill-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #00d2ff;
+  background: rgba(0, 210, 255, 0.12);
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 210, 255, 0.25);
+}
+
+.qr-clean-view {
+  padding: 16px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+}
+
+.qr-instructions-strip {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin-bottom: 18px;
+}
+
+.security-code-billboard {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.security-code-billboard small {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #00d2ff;
+}
+
+.copy-code-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.copy-code-btn:hover {
+  color: #00d2ff;
+  background: rgba(0, 210, 255, 0.1);
+}
+
+.code-digits-large {
+  font: 800 32px var(--app-font-mono);
+  letter-spacing: 0.25em;
+  color: #ffffff;
+  margin: 6px 0;
+  text-shadow: 0 0 16px rgba(0, 210, 255, 0.4);
+}
+
+.code-disclaimer {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Right Column: Live Attendance Telemetry */
+.live-attendance-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.live-counter-card {
+  padding: 20px;
+  border-radius: var(--radius-md);
+  background: rgba(14, 20, 30, 0.85);
+  border: 1px solid var(--glass-border);
+}
+
+.telemetry-big-number {
+  margin: 8px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.telemetry-big-number strong {
+  font: 800 36px var(--app-font-display);
+  color: #00e699;
+}
+
+.telemetry-big-number small {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.pulse-badge-new {
+  font: 700 9px var(--app-font-mono);
+  color: #00e699;
+  background: rgba(0, 230, 153, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 230, 153, 0.3);
+  animation: pulse-glow 2s infinite;
+}
+
+/* ==========================================================================
+   CAMERA SCANNER VIEWPORT & HUD STYLING
+   ========================================================================== */
+
+.camera-viewport {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #04070c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.camera-feed.is-streaming {
+  display: block;
+}
+
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px;
+}
+
+.camera-icon-glow {
+  color: #00d2ff;
+  filter: drop-shadow(0 0 14px rgba(0, 210, 255, 0.6));
+}
+
+.scanner-overlay-hud {
+  position: absolute;
+  inset: 18px;
+  pointer-events: none;
+}
+
+.hud-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #00d2ff;
+  border-style: solid;
+}
+
+.hud-corner.tl { top: 0; left: 0; border-width: 3px 0 0 3px; border-top-left-radius: 8px; }
+.hud-corner.tr { top: 0; right: 0; border-width: 3px 3px 0 0; border-top-right-radius: 8px; }
+.hud-corner.bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-bottom-left-radius: 8px; }
+.hud-corner.br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-bottom-right-radius: 8px; }
+
+.laser-beam-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00d2ff, #ffffff, #00d2ff, transparent);
+  box-shadow: 0 0 12px #00d2ff, 0 0 20px #00d2ff;
+  animation: laser-scan 2.2s ease-in-out infinite;
+}
+
+@keyframes laser-scan {
+  0%, 100% { top: 5%; opacity: 0.3; }
+  50% { top: 92%; opacity: 1; }
+}
+
+.scanner-action-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.scanner-info-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(0, 210, 255, 0.05);
+  border: 1px solid rgba(0, 210, 255, 0.15);
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+}
+
+/* ==========================================================================
+   MOBILE STUDENT PORTAL (VERIFYPAGE & NATIVE APP EXPERIENCE)
+   ========================================================================== */
+
+.mobile-portal-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mobile-portal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 10px;
+}
+
+.mobile-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.mobile-back-btn:hover {
+  color: #00d2ff;
+}
+
+.mobile-header-brand {
+  text-align: center;
+}
+
+.mobile-header-brand strong {
+  display: block;
+  font: 800 15px var(--app-font-display);
+  letter-spacing: 0.08em;
+  color: #ffffff;
+}
+
+.mobile-header-brand small {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mobile-portal-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(0, 230, 153, 0.1);
+  border: 1px solid rgba(0, 230, 153, 0.3);
+  color: #00e699;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.mobile-portal-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Student Digital Identity Card */
+.student-mobile-id-card {
+  padding: 20px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(14, 25, 45, 0.95) 0%, rgba(10, 18, 32, 0.9) 100%);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 210, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.student-mobile-id-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 210, 255, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.id-card-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.student-avatar-ring {
+  position: relative;
+}
+
+.student-avatar-ring .avatar {
+  background: linear-gradient(135deg, #00d2ff, #0055ff);
+  color: #050b14;
+  font-weight: 800;
+  box-shadow: 0 0 16px rgba(0, 210, 255, 0.4);
+}
+
+.student-id-details {
+  flex: 1;
+}
+
+.id-sublabel {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #00d2ff;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.student-id-name {
+  margin: 0 0 4px;
+  font: 700 18px var(--app-font-display);
+  color: #ffffff;
+}
+
+.student-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+.student-id-code {
+  font: 700 12px var(--app-font-mono);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.id-card-footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.id-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.id-stat span {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.id-stat strong {
+  font: 700 13px var(--app-font-mono);
+  margin-top: 2px;
+}
+
+/* Already Checked In Card (Real-Life Case) */
+.already-checked-in-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(0, 230, 153, 0.08);
+  border: 1px solid rgba(0, 230, 153, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(0, 230, 153, 0.1);
+}
+
+.check-success-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(0, 230, 153, 0.15);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.already-checked-in-card strong {
+  display: block;
+  font-size: 13.5px;
+  color: #00e699;
+}
+
+.already-checked-in-card p {
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Interactive Attendance Card */
+.mobile-interactive-panel {
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(14, 18, 26, 0.9);
+  border: 1px solid var(--glass-border);
+}
+
+.mobile-lecture-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(0, 210, 255, 0.06);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.mobile-epoch-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 210, 255, 0.12);
+  color: #00d2ff;
+  font: 700 11px var(--app-font-mono);
+}
+
+.mobile-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.tab-btn.active {
+  background: rgba(0, 210, 255, 0.15);
+  color: #00d2ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-scanner-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mobile-camera-frame {
+  height: 240px;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  background: #06090e;
+  border: 1px solid rgba(0, 210, 255, 0.3);
+}
+
+.mobile-primary-action-btn {
+  height: 50px;
+  width: 100%;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #00d2ff 0%, #0077ff 100%);
+  color: #050b14;
+  box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.mobile-primary-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 26px rgba(0, 210, 255, 0.6);
+}
+
+.mobile-primary-action-btn:active {
+  transform: translateY(1px);
+}
+
+.mobile-code-entry-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-code-input-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 0 10px;
+}
+
+.mobile-code-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #00d2ff;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.cinematic-code-input {
+  width: 100%;
+  max-width: 300px;
+  height: 58px;
+  font: 800 28px var(--app-font-mono);
+  letter-spacing: 0.28em;
+  text-align: center;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(0, 210, 255, 0.4);
+  border-radius: 14px;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 16px rgba(0, 210, 255, 0.15);
+  margin-bottom: 10px;
+}
+
+.cinematic-code-input:focus {
+  outline: none;
+  border-color: #00d2ff;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 24px rgba(0, 210, 255, 0.35);
+}
+
+.mobile-code-input-box small {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Digital Attendance Receipt Pass */
+.digital-university-pass {
+  background: linear-gradient(135deg, rgba(16, 24, 38, 0.95) 0%, rgba(10, 16, 26, 0.95) 100%);
+  border: 1px solid rgba(0, 230, 153, 0.35);
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 230, 153, 0.12);
+  margin: 16px 0 20px;
+  width: 100%;
+  text-align: left;
+}
+
+.pass-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.pass-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.pass-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.pass-row span {
+  color: var(--text-muted);
+}
+
+.pass-row b {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.mobile-success-pass {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.success-stamp-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 230, 153, 0.12);
+  border: 2px solid rgba(0, 230, 153, 0.4);
+  display: grid;
+  place-items: center;
+  color: #00e699;
+  box-shadow: 0 0 30px rgba(0, 230, 153, 0.35);
+  margin-bottom: 16px;
+}
+
+.success-badge-pill {
+  padding: 4px 14px;
+  border-radius: 20px;
+  font: 700 11px var(--app-font-mono);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.success-heading {
+  margin: 0 0 6px;
+  font: 800 24px var(--app-font-display);
+  color: #ffffff;
+}
+
+.success-subheading {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 320px;
+}
+
+.mobile-action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.mobile-security-footer-chip,
+.mobile-pass-security-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(0, 210, 255, 0.05);
+  border: 1px solid rgba(0, 210, 255, 0.15);
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.security-pill {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--glass-border);
+}
+
+/* ==========================================================================
+   MOBILE BOTTOM NAVIGATION BAR
+   ========================================================================== */
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  position: relative;
+  transition: all 0.18s ease;
+  padding: 4px 8px;
+}
+
+.mobile-nav-item:hover, .mobile-nav-item.is-active {
+  color: #00d2ff;
+}
+
+.mobile-badge-dot {
+  position: absolute;
+  top: 3px;
+  right: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff4d4d;
+  box-shadow: 0 0 6px #ff4d4d;
+}
+
+.mobile-nav-scan-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: -24px;
+}
+
+.mobile-scan-bubble {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d2ff 0%, #0077ff 100%);
+  display: grid;
+  place-items: center;
+  color: #050b14;
+  box-shadow: 0 4px 18px rgba(0, 210, 255, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.4);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  animation: pulse-ring 2.5s infinite;
+}
+
+.mobile-nav-scan-cta:hover .mobile-scan-bubble {
+  transform: scale(1.08);
+}
+
+.mobile-nav-scan-cta span {
+  font: 800 9.5px var(--app-font-display);
+  letter-spacing: 0.08em;
+  color: #00d2ff;
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    box-shadow: 0 4px 18px rgba(0, 210, 255, 0.45);
+  }
+  50% {
+    box-shadow: 0 4px 26px rgba(0, 210, 255, 0.8), 0 0 0 4px rgba(0, 210, 255, 0.2);
+  }
+}
+
+/* ==========================================================================
    RESPONSIVE DESIGN (TABLET & MOBILE)
    ========================================================================== */
 
 @media (max-width: 1200px) {
-  .qr-3d-stage {
+  .qr-stage-layout {
     grid-template-columns: 1fr;
     gap: 20px;
   }
@@ -2590,7 +3528,7 @@ td b {
     display: none;
   }
   .content-area {
-    padding: 24px 16px 36px;
+    padding: 16px 12px 96px;
   }
   .student-hero-banner {
     flex-direction: column;
@@ -2602,5 +3540,29 @@ td b {
   }
   .metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Fixed Bottom Navigation visible on mobile */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(10, 14, 22, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 8px;
+  }
+
+  /* Compact Footer on mobile */
+  .app-footer {
+    display: none !important;
   }
 }
