@@ -246,7 +246,7 @@ export async function seedDatabase() {
       key: s.key,
       value: s.value,
       description: s.description,
-    });
+    }).onConflictDoNothing();
   }
 
   // ===== AUDIT LOGS (initial) =====

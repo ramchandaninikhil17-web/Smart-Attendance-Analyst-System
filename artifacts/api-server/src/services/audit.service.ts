@@ -27,6 +27,15 @@ export interface AuditContext {
  */
 export async function createAuditLog(ctx: AuditContext): Promise<void> {
   try {
+    let ipAddress: string | null = null;
+    let userAgent: string | null = null;
+    try {
+      ipAddress = ((ctx.req?.headers?.["x-forwarded-for"] as string) || ctx.req?.socket?.remoteAddress || null) as string | null;
+    } catch {}
+    try {
+      userAgent = (typeof ctx.req?.get === "function" ? ctx.req.get("user-agent") : (ctx.req?.headers?.["user-agent"] as string) || null) as string | null;
+    } catch {}
+
     await db.insert(auditLogsTable).values({
       id: uuidv4(),
       actorId: ctx.actorId,
@@ -38,12 +47,12 @@ export async function createAuditLog(ctx: AuditContext): Promise<void> {
       severity: ctx.severity ?? "Info",
       success: ctx.success ?? true,
       metadata: ctx.metadata ? JSON.stringify(ctx.metadata) : null,
-      ipAddress: ctx.req?.ip ?? null,
-      userAgent: ctx.req?.get("user-agent") ?? null,
+      ipAddress,
+      userAgent,
     });
   } catch (error) {
     // Audit logging failures must not crash the application but MUST be logged
-    logger.error({ error, ctx }, "Failed to create audit log entry");
+    logger.error({ err: error, ctx }, "Failed to create audit log entry");
   }
 }
 

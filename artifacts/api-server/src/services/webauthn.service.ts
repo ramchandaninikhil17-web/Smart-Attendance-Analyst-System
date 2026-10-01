@@ -23,7 +23,8 @@ import { logger } from "../lib/logger";
 const isProduction = process.env.NODE_ENV === "production";
 const RP_NAME = process.env.WEBAUTHN_RP_NAME || "CHARUSAT Smart Attendance";
 const RP_ID = process.env.WEBAUTHN_RP_ID || "localhost";
-const ORIGIN = process.env.WEBAUTHN_ORIGIN || "http://localhost:5173";
+const rawOrigin = process.env.WEBAUTHN_ORIGIN || "http://localhost:3000,http://localhost:5173";
+const ORIGIN = rawOrigin.includes(",") ? rawOrigin.split(",").map((s) => s.trim()) : rawOrigin;
 const CHALLENGE_TIMEOUT_MS = Number(process.env.WEBAUTHN_CHALLENGE_TIMEOUT_MS) || 120_000; // 2 minutes
 
 if (isProduction && (RP_ID === "localhost" || ORIGIN.includes("localhost"))) {

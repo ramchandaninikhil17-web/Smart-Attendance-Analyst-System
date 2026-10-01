@@ -82255,6 +82255,16 @@ async function activateUser(userId) {
 // src/services/audit.service.ts
 async function createAuditLog(ctx) {
   try {
+    let ipAddress = null;
+    let userAgent = null;
+    try {
+      ipAddress = ctx.req?.headers?.["x-forwarded-for"] || ctx.req?.socket?.remoteAddress || null;
+    } catch {
+    }
+    try {
+      userAgent = typeof ctx.req?.get === "function" ? ctx.req.get("user-agent") : ctx.req?.headers?.["user-agent"] || null;
+    } catch {
+    }
     await db.insert(auditLogsTable).values({
       id: v4_default(),
       actorId: ctx.actorId,
@@ -82266,11 +82276,11 @@ async function createAuditLog(ctx) {
       severity: ctx.severity ?? "Info",
       success: ctx.success ?? true,
       metadata: ctx.metadata ? JSON.stringify(ctx.metadata) : null,
-      ipAddress: ctx.req?.ip ?? null,
-      userAgent: ctx.req?.get("user-agent") ?? null
+      ipAddress,
+      userAgent
     });
   } catch (error40) {
-    logger.error({ error: error40, ctx }, "Failed to create audit log entry");
+    logger.error({ err: error40, ctx }, "Failed to create audit log entry");
   }
 }
 async function getAuditLogs(limit = 100, offset = 0) {
@@ -88498,7 +88508,8 @@ async function verifyAuthenticationResponse(options) {
 var isProduction4 = process.env.NODE_ENV === "production";
 var RP_NAME = process.env.WEBAUTHN_RP_NAME || "CHARUSAT Smart Attendance";
 var RP_ID = process.env.WEBAUTHN_RP_ID || "localhost";
-var ORIGIN = process.env.WEBAUTHN_ORIGIN || "http://localhost:5173";
+var rawOrigin = process.env.WEBAUTHN_ORIGIN || "http://localhost:3000,http://localhost:5173";
+var ORIGIN = rawOrigin.includes(",") ? rawOrigin.split(",").map((s) => s.trim()) : rawOrigin;
 var CHALLENGE_TIMEOUT_MS = Number(process.env.WEBAUTHN_CHALLENGE_TIMEOUT_MS) || 12e4;
 if (isProduction4 && (RP_ID === "localhost" || ORIGIN.includes("localhost"))) {
   logger.warn({ RP_ID, ORIGIN }, "WEBAUTHN_RP_ID and WEBAUTHN_ORIGIN should be configured with your production domain (e.g. attendance.charusat.ac.in and https://attendance.charusat.ac.in) for hardware passkeys to work in production.");
@@ -89956,7 +89967,7 @@ app.use(import_express12.default.json());
 app.use(import_express12.default.urlencoded({ extended: true }));
 app.use("/api", routes_default);
 app.use(routes_default);
-app.use("/api/*", (_req, res) => {
+app.use((_req, res) => {
   sendNotFound(res, "API endpoint not found.");
 });
 app.use((err, _req, res, _next) => {
@@ -90196,7 +90207,7 @@ async function seedDatabase() {
       key: s.key,
       value: s.value,
       description: s.description
-    });
+    }).onConflictDoNothing();
   }
   await db.insert(auditLogsTable).values({
     id: v4_default(),

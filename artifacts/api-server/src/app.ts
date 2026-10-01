@@ -42,8 +42,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
 app.use(router);
 
-// 404 handler for unknown API routes
-app.use("/api/*", (_req: Request, res: Response) => {
+// 404 handler for unknown routes
+app.use((_req: Request, res: Response) => {
   sendNotFound(res, "API endpoint not found.");
 });
 
