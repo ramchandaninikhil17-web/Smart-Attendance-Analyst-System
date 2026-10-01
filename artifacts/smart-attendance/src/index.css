@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -136,4 +136,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @keyframes rise-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 .data-grid { background-image: linear-gradient(hsl(var(--border) / .35) 1px, transparent 1px); background-size: 100% 40px; }
 .scrollbar-thin { scrollbar-width: thin; scrollbar-color: hsl(var(--border)) transparent; }
+.font-instrument-sans { font-family: 'Instrument Sans', sans-serif; }
+.font-instrument-serif { font-family: 'Instrument Serif', serif; }
 ::selection { background: hsl(var(--primary) / .18); }

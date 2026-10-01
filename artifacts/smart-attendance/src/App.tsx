@@ -26,6 +26,7 @@ import { ReportsPage } from './pages/ReportsPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { HeroSection } from './components/HeroSection';
 
 function useStore(): Store {
   return useSyncExternalStore(dataService.subscribe, dataService.get, dataService.get);
@@ -44,6 +45,11 @@ export function App() {
   const [location, setLocation] = useLocation();
   const [toast, setToast] = useState('');
   const isLogin = location === '/login';
+  const isHero = location === '/hero' || location === '/builder';
+
+  if (isHero) {
+    return <HeroSection />;
+  }
 
   return (
     <div className={`app-shell ${store.settings.compact ? 'compact-mode' : ''}`}>
@@ -53,6 +59,8 @@ export function App() {
         <Shell store={store} onToast={setToast}>
           <Switch>
             <Route path="/" component={() => <Redirect path="/overview" />} />
+            <Route path="/hero" component={() => <HeroSection />} />
+            <Route path="/builder" component={() => <HeroSection />} />
             <Route path="/overview" component={() => <OverviewPage store={store} onToast={setToast} />} />
             <Route path="/attendance" component={() => <AttendancePage store={store} toast={setToast} />} />
             <Route path="/sessions" component={() => <SessionsPage store={store} toast={setToast} />} />

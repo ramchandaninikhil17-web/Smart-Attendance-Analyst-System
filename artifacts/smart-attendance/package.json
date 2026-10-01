@@ -73,5 +73,9 @@
     "vite": "catalog:",
     "wouter": "^3.3.5",
     "zod": "catalog:"
+  },
+  "dependencies": {
+    "hls.js": "^1.7.3",
+    "motion": "^12.43.0"
   }
 }

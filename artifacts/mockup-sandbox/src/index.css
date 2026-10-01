@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -181,5 +182,13 @@
     content: attr(data-placeholder);
     color: hsl(var(--muted-foreground));
     pointer-events: none;
+  }
+
+  /* Font families */
+  .font-instrument-sans {
+    font-family: 'Instrument Sans', sans-serif;
+  }
+  .font-instrument-serif {
+    font-family: 'Instrument Serif', serif;
   }
 }
