@@ -1450,6 +1450,50 @@ td b {
   padding: 24px;
 }
 
+/* Dedicated Aside Timer & Epoch Bar for Scanner (Kept Completely Outside Viewport) */
+.scanner-aside-timer-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(14, 20, 29, 0.95);
+  border: 1px solid rgba(0, 210, 255, 0.25);
+  border-radius: 12px;
+  margin-bottom: 14px;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.aside-session-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.aside-session-info strong {
+  color: #00d2ff;
+  font-weight: 700;
+}
+
+.aside-countdown-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 210, 255, 0.12);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.aside-countdown-pill strong {
+  color: #00d2ff;
+  font-family: var(--app-font-mono);
+}
+
 .camera-viewport {
   position: relative;
   width: 100%;
@@ -1461,6 +1505,11 @@ td b {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.camera-viewport.clean-viewfinder {
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  box-shadow: 0 0 24px rgba(0, 210, 255, 0.12);
 }
 
 .camera-feed {
@@ -2040,86 +2089,212 @@ td b {
   color: #ffffff;
 }
 
-.qr-3d-stage {
+/* ==========================================================================
+   TEACHER STAGE: 3-COLUMN SEPARATED LAYOUT (TIMER ASIDE + CLEAN QR + LIVE FEED)
+   ========================================================================== */
+
+.qr-stage-layout {
   display: grid;
-  grid-template-columns: 280px minmax(360px, 1fr) 280px;
+  grid-template-columns: 290px minmax(340px, 1fr) 320px;
   gap: 24px;
   margin-top: 24px;
-  align-items: center;
+  align-items: stretch;
 }
 
-.central-qr-display-box {
+@media (max-width: 1100px) {
+  .qr-stage-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 1. DEDICATED ASIDE TIMER CARD */
+.timer-aside-card {
+  padding: 22px;
+  border-radius: var(--radius-md);
+  background: rgba(18, 24, 34, 0.85);
+  border: 1px solid rgba(0, 210, 255, 0.25);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  position: relative;
+  justify-content: space-between;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
-.qr-frame-wrapper {
+.timer-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.timer-card-header h4 {
+  font: 700 13px var(--app-font-display);
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.timer-gauge-container {
   position: relative;
-  width: 250px;
-  height: 250px;
+  width: 140px;
+  height: 140px;
+  margin: 16px auto;
   display: grid;
   place-items: center;
 }
 
-.rotation-countdown-ring {
-  position: absolute;
-  inset: -12px;
-  width: calc(100% + 24px);
-  height: calc(100% + 24px);
+.timer-circle-svg {
+  width: 100%;
+  height: 100%;
   transform: rotate(-90deg);
-  pointer-events: none;
 }
 
-.ring-bg {
+.timer-circle-bg {
   fill: none;
   stroke: rgba(255, 255, 255, 0.08);
-  stroke-width: 3;
+  stroke-width: 8;
 }
 
-.ring-progress {
+.timer-circle-meter {
   fill: none;
   stroke: #00d2ff;
-  stroke-width: 4;
+  stroke-width: 8;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.8s linear;
-  filter: drop-shadow(0 0 8px #00d2ff);
+  filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.6));
 }
 
-.qr-code-embed {
-  padding: 12px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+.timer-gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.rotation-epoch-tag {
+.timer-gauge-number {
+  font: 800 38px var(--app-font-display);
+  color: #ffffff;
+  line-height: 1;
+}
+
+.timer-gauge-unit {
+  font: 700 8.5px var(--app-font-mono);
+  letter-spacing: 0.12em;
+  color: #00d2ff;
+  margin-top: 4px;
+}
+
+.timer-status-box {
+  background: rgba(0, 210, 255, 0.06);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 8px 0 14px;
+}
+
+.timer-status-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 14px;
-  color: var(--text-secondary);
+  gap: 8px;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.timer-status-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.timer-stats-list {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--glass-border);
+  padding-top: 12px;
+}
+
+.timer-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 11px;
 }
 
-.rotation-epoch-tag strong {
+.timer-stat-row span {
+  color: var(--text-muted);
+}
+
+.timer-stat-row b {
+  color: #ffffff;
+}
+
+.timer-stat-row code {
   color: #00d2ff;
+  font-family: var(--app-font-mono);
 }
 
-.spin-slow {
-  animation: spin 8s linear infinite;
+/* 2. CENTER STAGE: CLEAN HIGH-CONTRAST QR PRESENTATION */
+.qr-presentation-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.qr-card-hero {
+  background: rgba(18, 24, 34, 0.85);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 210, 255, 0.12);
+  width: 100%;
 }
 
+.qr-header-strip {
+  margin-bottom: 16px;
+}
+
+.qr-pill-label {
+  font: 700 9.5px var(--app-font-mono);
+  letter-spacing: 0.12em;
+  color: #00d2ff;
+  background: rgba(0, 210, 255, 0.12);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+
+/* Unobstructed Clean View: pure white card surface with high contrast */
+.qr-clean-view {
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 0 4px rgba(255, 255, 255, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.qr-clean-view:hover {
+  transform: scale(1.02);
+}
+
+.qr-instructions-strip {
+  margin: 14px 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* 6-Character Synchronized Security Code Billboard */
 .security-code-billboard {
-  margin-top: 18px;
-  padding: 14px 24px;
+  width: 100%;
+  padding: 14px 20px;
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--glass-border);
@@ -2134,17 +2309,60 @@ td b {
   color: var(--text-muted);
 }
 
+.copy-code-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.copy-code-btn:hover {
+  background: rgba(0, 210, 255, 0.15);
+  color: #00d2ff;
+  border-color: rgba(0, 210, 255, 0.4);
+}
+
 .code-digits-large {
   font: 800 36px var(--app-font-mono);
   letter-spacing: 0.16em;
   color: #00d2ff;
   text-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
-  margin: 4px 0;
+  margin: 6px 0;
 }
 
 .code-disclaimer {
-  font-size: 9.5px;
+  font-size: 10px;
   color: var(--text-muted);
+}
+
+/* 3. RIGHT COLUMN: LIVE ATTENDANCE ROSTER & ACTIVITY STREAM */
+.live-attendance-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.live-counter-card {
+  padding: 20px;
+  border-radius: var(--radius-md);
+  background: rgba(18, 24, 34, 0.85);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Telemetry Left Column */

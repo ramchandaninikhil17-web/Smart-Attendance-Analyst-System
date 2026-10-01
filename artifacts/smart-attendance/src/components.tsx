@@ -1,5 +1,6 @@
-import { type ReactNode, useEffect, useId } from 'react';
+import { type ReactNode, useEffect, useId, useMemo } from 'react';
 import { X, ShieldAlert, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { generateQrMatrix } from './lib/qrCode';
 
 export function Button({
   children,
@@ -309,127 +310,72 @@ export function Field({
 }
 
 /**
- * Procedural Dynamic SVG QR Code
- * Renders standard 25x25 QR matrix structure with position finders, timing belts,
- * and pseudo-random deterministic data pattern keyed to the code string.
+ * Standard ISO/IEC 18004 Compliant Dynamic QR Code Component
+ * Generates true scannable QR Code matrices with Reed-Solomon error correction
+ * and high-contrast dark modules on pure white background with required quiet zone.
  */
 export function DynamicQrCode({
   code,
-  size = 180,
-  logoText = 'NS'
+  size = 200,
+  logoText = 'CHARUSAT'
 }: {
   code: string;
   size?: number;
   logoText?: string;
 }) {
-  const N = 25;
-  const grid: boolean[][] = Array.from({ length: N }, () => Array(N).fill(false));
-
-  // Helper: place a 7x7 Finder Pattern at (r, c)
-  const placeFinder = (r: number, c: number) => {
-    for (let i = 0; i < 7; i++) {
-      for (let j = 0; j < 7; j++) {
-        if (i === 0 || i === 6 || j === 0 || j === 6) grid[r + i][c + j] = true;
-        else if (i >= 2 && i <= 4 && j >= 2 && j <= 4) grid[r + i][c + j] = true;
-      }
+  const { matrix, size: N } = useMemo(() => {
+    try {
+      return generateQrMatrix(code || 'CHARUSAT:ATTENDANCE');
+    } catch {
+      return generateQrMatrix('CHARUSAT');
     }
-  };
+  }, [code]);
 
-  placeFinder(0, 0);
-  placeFinder(0, N - 7);
-  placeFinder(N - 7, 0);
-
-  // Timing patterns
-  for (let i = 8; i < N - 8; i++) {
-    if (i % 2 === 0) {
-      grid[6][i] = true;
-      grid[i][6] = true;
-    }
-  }
-
-  // Alignment pattern at (16, 16)
-  for (let i = 16; i <= 20; i++) {
-    for (let j = 16; j <= 20; j++) {
-      if (i === 16 || i === 20 || j === 16 || j === 20 || (i === 18 && j === 18)) {
-        grid[i][j] = true;
-      }
-    }
-  }
-
-  // Seeded hash for pseudo-random data bits
-  let hash = 0;
-  for (let i = 0; i < code.length; i++) {
-    hash = (hash * 31 + code.charCodeAt(i)) >>> 0;
-  }
-
-  for (let r = 0; r < N; r++) {
-    for (let c = 0; c < N; c++) {
-      // Skip finders & separators
-      const inTopLeft = r <= 7 && c <= 7;
-      const inTopRight = r <= 7 && c >= N - 8;
-      const inBottomLeft = r >= N - 8 && c <= 7;
-      const inCenterLogo = r >= 10 && r <= 14 && c >= 10 && c <= 14;
-      const inTiming = r === 6 || c === 6;
-      const inAlignment = r >= 16 && r <= 20 && c >= 16 && c <= 20;
-
-      if (!inTopLeft && !inTopRight && !inBottomLeft && !inCenterLogo && !inTiming && !inAlignment) {
-        hash = (hash * 1103515245 + 12345) >>> 0;
-        grid[r][c] = (hash % 100) < 52;
-      }
-    }
-  }
-
-  const cellSize = size / N;
+  // Standard 2-module quiet zone padding for fast optical recognition
+  const paddingModules = 2;
+  const totalGridSize = N + paddingModules * 2;
+  const cellSize = size / totalGridSize;
 
   return (
-    <div className="qr-container" style={{ width: size, height: size }}>
+    <div
+      className="qr-container"
+      style={{
+        width: size,
+        height: size,
+        background: '#ffffff',
+        borderRadius: '12px',
+        padding: '8px',
+        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+        display: 'grid',
+        placeItems: 'center',
+        userSelect: 'none',
+      }}
+    >
       <svg
-        width={size}
-        height={size}
+        width={size - 16}
+        height={size - 16}
         viewBox={`0 0 ${size} ${size}`}
         className="qr-svg"
         role="img"
-        aria-label={`QR Code for session ${code}`}
+        aria-label={`Verified QR Code: ${code}`}
+        style={{ display: 'block', shapeRendering: 'crispEdges' }}
       >
-        <rect width={size} height={size} fill="#ffffff" rx={8} />
-        {grid.flatMap((row, r) =>
+        <rect width={size} height={size} fill="#ffffff" />
+        {matrix.flatMap((row, r) =>
           row.map((active, c) => {
             if (!active) return null;
-            // Clear center for logo
-            if (r >= 10 && r <= 14 && c >= 10 && c <= 14) return null;
             return (
               <rect
                 key={`${r}-${c}`}
-                x={c * cellSize}
-                y={r * cellSize}
-                width={cellSize - 0.2}
-                height={cellSize - 0.2}
-                fill="#1c2826"
-                rx={cellSize * 0.2}
+                x={(c + paddingModules) * cellSize}
+                y={(r + paddingModules) * cellSize}
+                width={cellSize + 0.1}
+                height={cellSize + 0.1}
+                fill="#000000"
               />
             );
           })
         )}
-        {/* Center Emblem */}
-        <rect
-          x={10 * cellSize}
-          y={10 * cellSize}
-          width={5 * cellSize}
-          height={5 * cellSize}
-          fill="#00d2ff"
-          rx={5}
-        />
-        <text
-          x={12.5 * cellSize}
-          y={13.2 * cellSize}
-          textAnchor="middle"
-          fill="#050b14"
-          fontSize={cellSize * 2.2}
-          fontWeight="900"
-          fontFamily="system-ui, sans-serif"
-        >
-          {logoText}
-        </text>
       </svg>
     </div>
   );

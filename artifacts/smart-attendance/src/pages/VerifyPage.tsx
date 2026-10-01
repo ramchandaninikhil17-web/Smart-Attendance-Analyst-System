@@ -11,6 +11,8 @@ import { Badge, Button, Card } from '../components';
 import { BackgroundEffects } from '../components/BackgroundEffects';
 import { classLabel, initials, fmtTime } from '../utils';
 
+import { QrScannerEngine, type QrScanResult } from '../lib/qrScanner';
+
 interface VerifyPageProps {
   store: Store;
   toast: (message: string) => void;
@@ -25,13 +27,32 @@ export function VerifyPage({ store, toast }: VerifyPageProps) {
   const [authenticating, setAuthenticating] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [now, setNow] = useState(Date.now());
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const scannerEngineRef = useRef<QrScannerEngine | null>(null);
 
   const active = store.sessions.find(s => s.status === 'Live' || s.status === 'Paused');
   const student = store.students.find(s => s.email === store.currentUser.email) || store.students[0];
   const alreadyCheckedIn = active?.attendanceRecords.some(r => r.studentId === student?.id && r.status === 'Present');
+
+  const ROTATION_SECONDS = 15;
+  const secondsRemaining = ROTATION_SECONDS - Math.floor((now / 1000) % ROTATION_SECONDS);
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const handleDetectedQrResult = (resultCode: string) => {
+    setError('');
+    const codeToUse = resultCode || active?.code || '482 917';
+    setCode(codeToUse);
+    stopCamera();
+    setStep('passkey');
+    toast('QR Code detected & decoded successfully!');
+  };
 
   const startCamera = async () => {
     setCameraError(null);
@@ -40,12 +61,19 @@ export function VerifyPage({ store, toast }: VerifyPageProps) {
         throw new Error('Camera device not supported by this browser.');
       }
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } }
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
       });
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play().catch(() => {});
+
+        // Attach Real-time QR Scanner Engine to live video feed
+        const engine = new QrScannerEngine((res: QrScanResult) => {
+          handleDetectedQrResult(res.code || res.rawValue);
+        });
+        scannerEngineRef.current = engine;
+        engine.start(videoRef.current);
       }
       setCameraActive(true);
     } catch (err: any) {
@@ -55,6 +83,10 @@ export function VerifyPage({ store, toast }: VerifyPageProps) {
   };
 
   const stopCamera = () => {
+    if (scannerEngineRef.current) {
+      scannerEngineRef.current.stop();
+      scannerEngineRef.current = null;
+    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());
       streamRef.current = null;
@@ -196,7 +228,19 @@ export function VerifyPage({ store, toast }: VerifyPageProps) {
 
               {mode === 'qr' ? (
                 <div>
-                  <div className="camera-viewport" style={{ height: '240px', marginBottom: '16px' }}>
+                  {/* Dedicated Aside Timer & Epoch Bar (Kept completely aside from camera) */}
+                  <div className="scanner-aside-timer-strip" style={{ marginBottom: '12px' }}>
+                    <div className="aside-session-info">
+                      <span className="pulsing-live-orb mini" />
+                      <span>{active ? classLabel(store, active.classId) : 'Classroom Session'}</span>
+                    </div>
+                    <div className="aside-countdown-pill">
+                      <RefreshCw size={12} className="spin-slow" />
+                      <span>Epoch rotates in <strong>{secondsRemaining}s</strong></span>
+                    </div>
+                  </div>
+
+                  <div className="camera-viewport clean-viewfinder" style={{ height: '240px', marginBottom: '16px' }}>
                     <video ref={videoRef} autoPlay playsInline muted className={`camera-feed ${cameraActive ? 'is-streaming' : ''}`} />
                     {!cameraActive && (
                       <div className="camera-placeholder">
@@ -209,7 +253,7 @@ export function VerifyPage({ store, toast }: VerifyPageProps) {
                         )}
                       </div>
                     )}
-                    <div className="scanner-overlay-hud">
+                    <div className="scanner-overlay-hud clear-center">
                       <div className="hud-corner tl" />
                       <div className="hud-corner tr" />
                       <div className="hud-corner bl" />

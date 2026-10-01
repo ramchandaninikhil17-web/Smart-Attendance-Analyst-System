@@ -104,7 +104,7 @@ export function LiveSessionPage({ store, toast }: LiveSessionPageProps) {
   }, [live?.id]);
 
   const displayCode = serverCode || dynamicCode;
-  const displayQrToken = serverQrToken || dynamicCode;
+  const displayQrToken = `CHARUSAT:${live.id}:${displayCode.replace(/\s/g, '')}`;
 
   const recordFor = (id: string) => live.attendanceRecords.find(r => r.studentId === id);
 
@@ -217,10 +217,14 @@ export function LiveSessionPage({ store, toast }: LiveSessionPageProps) {
             </span>
           </div>
 
-          <div className="live-qr-hero">
-            <DynamicQrCode code={displayQrToken} size={175} logoText="CU" />
+          <div className="live-qr-hero" style={{ display: 'flex', gap: '28px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Unobstructed Clean QR Code */}
+            <div style={{ padding: '8px', background: '#ffffff', borderRadius: '12px', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', flexShrink: 0 }}>
+              <DynamicQrCode code={displayQrToken} size={180} logoText="CU" />
+            </div>
 
-            <div className="live-qr-details">
+            {/* Dedicated Aside Column for Timer & Synchronized 6-Digit Code */}
+            <div className="live-qr-details" style={{ flex: 1, minWidth: '220px' }}>
               <div>
                 <small style={{ fontSize: '10px', color: '#7a8682', fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase' }}>
                   Live 6-Digit Rotating Code
@@ -234,17 +238,18 @@ export function LiveSessionPage({ store, toast }: LiveSessionPageProps) {
                 </div>
               </div>
 
-              <div className="countdown-ring-wrap">
-                <Clock3 size={15} />
-                <span>Rotates in <b>{secondsRemaining}s</b></span>
-                <span style={{ color: '#889591', fontSize: '10px' }}>· Replay Protected</span>
+              {/* Timer Pill Aside */}
+              <div className="countdown-ring-wrap" style={{ marginTop: '12px' }}>
+                <Clock3 size={15} className="text-cyan" />
+                <span>Next rotation in <b>{secondsRemaining}s</b></span>
+                <span style={{ color: '#889591', fontSize: '10px' }}>· Dynamic Replay Protected</span>
               </div>
 
-              <div className="code-progress" style={{ width: '100%', height: '5px' }}>
+              <div className="code-progress" style={{ width: '100%', height: '5px', marginTop: '6px' }}>
                 <span style={{ transform: `scaleX(${secondsRemaining / ROTATION_SECONDS})`, transformOrigin: 'left', transition: 'transform 1s linear' }} />
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '11px' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '11px', marginTop: '12px' }}>
                 <Link href="/verify" className="code-preview-link">
                   Open student check-in simulator <ArrowRight size={13} />
                 </Link>
