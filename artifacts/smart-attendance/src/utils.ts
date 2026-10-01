@@ -46,7 +46,6 @@ export const operationsNav: NavItem[] = [
   { label: 'Reports', href: '/reports', icon: FileBarChart2 },
   { label: 'Notifications', href: '/notifications', icon: Bell },
   { label: 'Settings', href: '/settings', icon: Settings },
-  { label: 'AI Builder Hero', href: '/hero', icon: Sparkles },
 ];
 
 export const allNav: NavItem[] = [

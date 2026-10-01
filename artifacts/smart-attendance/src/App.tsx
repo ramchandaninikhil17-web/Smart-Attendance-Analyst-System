@@ -5,6 +5,7 @@ import './app.css';
 
 import { dataService, type Store } from './data';
 import { Shell } from './components/Shell';
+import { AIWebsiteBuilder } from './components/AIWebsiteBuilder';
 
 // Modular Page Components
 import { LoginPage } from './pages/LoginPage';
@@ -26,30 +27,22 @@ import { ReportsPage } from './pages/ReportsPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
-import { HeroSection } from './components/HeroSection';
 
 function useStore(): Store {
   return useSyncExternalStore(dataService.subscribe, dataService.get, dataService.get);
-}
-
-function Redirect({ path }: { path: string }) {
-  const [, setLocation] = useLocation();
-  useEffect(() => {
-    setLocation(path);
-  }, [path, setLocation]);
-  return null;
 }
 
 export function App() {
   const store = useStore();
   const [location, setLocation] = useLocation();
   const [toast, setToast] = useState('');
-  const isLogin = location === '/login';
-  const isHero = location === '/hero' || location === '/builder';
 
-  if (isHero) {
-    return <HeroSection />;
+  // The main website at root "/" is the 3D animated AI Website Builder
+  if (location === '/' || location === '') {
+    return <AIWebsiteBuilder />;
   }
+
+  const isLogin = location === '/login';
 
   return (
     <div className={`app-shell ${store.settings.compact ? 'compact-mode' : ''}`}>
@@ -58,9 +51,6 @@ export function App() {
       ) : (
         <Shell store={store} onToast={setToast}>
           <Switch>
-            <Route path="/" component={() => <Redirect path="/overview" />} />
-            <Route path="/hero" component={() => <HeroSection />} />
-            <Route path="/builder" component={() => <HeroSection />} />
             <Route path="/overview" component={() => <OverviewPage store={store} onToast={setToast} />} />
             <Route path="/attendance" component={() => <AttendancePage store={store} toast={setToast} />} />
             <Route path="/sessions" component={() => <SessionsPage store={store} toast={setToast} />} />
