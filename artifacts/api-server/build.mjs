@@ -126,11 +126,12 @@ async function buildAll() {
   await mkdir(apiDir, { recursive: true });
 
   await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/serverless.ts")],
+    entryPoints: { index: path.resolve(artifactDir, "src/serverless.ts") },
     platform: "node",
     bundle: true,
     format: "esm",
-    outfile: path.resolve(apiDir, "index.js"),
+    outdir: apiDir,
+    outExtension: { ".js": ".js" },
     logLevel: "info",
     external,
     sourcemap: "linked",

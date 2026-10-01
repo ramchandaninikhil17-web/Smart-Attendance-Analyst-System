@@ -18,12 +18,27 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-const connectionString = process.env.DATABASE_URL;
+const rawConnectionString = process.env.DATABASE_URL;
 const isSupabaseOrCloud =
-  connectionString.includes("supabase.co") ||
-  connectionString.includes("pooler.supabase.com") ||
-  connectionString.includes("sslmode=require") ||
+  rawConnectionString.includes("supabase.co") ||
+  rawConnectionString.includes("pooler.supabase.com") ||
+  rawConnectionString.includes("sslmode=require") ||
   process.env.NODE_ENV === "production";
+
+// Strip sslmode from URL when using the ssl config object directly.
+// pg v8.23+ treats URL sslmode=require as verify-full, which rejects
+// Supabase pooler's self-signed certificates. We handle SSL via the
+// Pool config object instead with rejectUnauthorized: false.
+let connectionString = rawConnectionString;
+if (isSupabaseOrCloud) {
+  try {
+    const parsed = new URL(rawConnectionString);
+    parsed.searchParams.delete("sslmode");
+    connectionString = parsed.toString();
+  } catch {
+    // If URL parsing fails, use as-is
+  }
+}
 
 export const pool = new Pool({
   connectionString,
@@ -33,4 +48,3 @@ export const pool = new Pool({
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";
-
