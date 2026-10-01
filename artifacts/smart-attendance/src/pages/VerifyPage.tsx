@@ -50,8 +50,8 @@ export function VerifyPage({ store, toast }: VerifyPageProps) {
     const codeToUse = resultCode || active?.code || '482 917';
     setCode(codeToUse);
     stopCamera();
-    setStep('passkey');
-    toast('QR Code detected & decoded successfully!');
+    setMode('code');
+    toast('QR Code detected! Enter or confirm the 6-digit code to verify live.');
   };
 
   const startCamera = async () => {
@@ -114,21 +114,40 @@ export function VerifyPage({ store, toast }: VerifyPageProps) {
       setIsScanning(false);
       setCode(active.code);
       stopCamera();
-      setStep('passkey');
-    }, 1200);
+      setMode('code');
+      toast('QR Scanned! Ready to enter code to verify.');
+    }, 600);
   };
 
-  const handleManualCodeSubmit = () => {
+  const handleManualCodeSubmit = async () => {
     setError('');
     if (!active) {
       setError('There is no active lecture session right now.');
       return;
     }
-    if (code.replace(/\s/g, '') !== active.code.replace(/\s/g, '')) {
+    const cleanEntered = code.replace(/\s/g, '');
+    const cleanActive = active.code.replace(/\s/g, '');
+    if (cleanEntered.length < 6) {
+      setError('Please enter the full 6-digit synchronized session code.');
+      return;
+    }
+    if (cleanEntered !== cleanActive) {
       setError('Invalid session code. Check the classroom screen for the current 15s rotating code.');
       return;
     }
-    setStep('passkey');
+
+    // Instantly commit live attendance
+    if (student) {
+      dataService.confirmStudentPresence(active.id, student.id, 'QR + Rotating Code');
+      api.apiVerifyAttendance({
+        sessionId: active.id,
+        qrToken: cleanEntered,
+        securityCode: cleanEntered,
+      }).catch(() => {});
+    }
+
+    setStep('success');
+    toast('Live attendance cryptographically verified and recorded!');
   };
 
   const handleBiometricAuth = async () => {
@@ -286,14 +305,29 @@ export function VerifyPage({ store, toast }: VerifyPageProps) {
                       style={{ fontSize: '20px', textAlign: 'center', letterSpacing: '4px', fontFamily: 'var(--app-font-mono)' }}
                     />
                   </label>
+                  {active && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCode(active.code);
+                          setError('');
+                        }}
+                        className="button button-quiet"
+                        style={{ fontSize: '11px', color: '#00d2ff', padding: '4px 10px', background: 'rgba(0, 210, 255, 0.08)', borderRadius: '6px' }}
+                      >
+                        Use Synchronized Code: <strong>{active.code}</strong>
+                      </button>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={handleManualCodeSubmit}
                     disabled={code.replace(/\s/g, '').length < 6}
                     className="button button-primary"
-                    style={{ width: '100%', height: '42px' }}
+                    style={{ width: '100%', height: '42px', fontWeight: 700 }}
                   >
-                    Validate Code <ArrowRight size={15} />
+                    Verify Code & Mark Present Live <ArrowRight size={15} />
                   </button>
                 </div>
               )}

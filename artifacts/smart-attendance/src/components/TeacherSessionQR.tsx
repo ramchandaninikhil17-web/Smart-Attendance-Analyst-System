@@ -268,18 +268,28 @@ export function TeacherSessionQR({ session, store, onEndSession }: TeacherSessio
 
             <div className="stream-list custom-scroll" style={{ maxHeight: '200px', overflowY: 'auto' }}>
               {session.attendanceRecords.length ? (
-                session.attendanceRecords.slice().reverse().map(record => {
+                session.attendanceRecords.slice().reverse().map((record, idx) => {
                   const student = store.students.find(s => s.id === record.studentId);
+                  const isLatest = idx === 0;
                   return (
-                    <div key={record.id} className="stream-item">
-                      <div className="stream-avatar">
+                    <div
+                      key={record.id}
+                      className={`stream-item ${isLatest ? 'is-new-checkin' : ''}`}
+                      style={isLatest ? { background: 'rgba(0, 230, 153, 0.08)', border: '1px solid rgba(0, 230, 153, 0.3)' } : undefined}
+                    >
+                      <div className="stream-avatar" style={isLatest ? { borderColor: '#00e699', color: '#00e699' } : undefined}>
                         {student?.name.split(' ').map(n => n[0]).join('') || 'ST'}
                       </div>
                       <div className="stream-item-info">
-                        <b>{student?.name || 'Verified Student'}</b>
+                        <b>
+                          {student?.name || 'Verified Student'}{' '}
+                          {isLatest && <span style={{ color: '#00e699', fontSize: '9px', fontWeight: 700 }}>● NEW</span>}
+                        </b>
                         <small>{student?.studentId || '22DCSE'} · {new Date(record.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</small>
                       </div>
-                      <span className="badge badge-green">Present</span>
+                      <span className={`badge ${isLatest ? 'badge-green' : 'badge-teal'}`}>
+                        {record.status}
+                      </span>
                     </div>
                   );
                 })
