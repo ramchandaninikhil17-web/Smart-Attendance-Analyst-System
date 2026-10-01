@@ -193,11 +193,11 @@ export function LiveSessionPage({ store, toast }: LiveSessionPageProps) {
 
       {/* Flagged Security Events alert */}
       {relevantSecurity.length > 0 && (
-        <Card style={{ padding: '12px 18px', background: '#fdf7f6', border: '1px solid #f6d1cc', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <ShieldAlert size={18} color="#ba554b" />
-            <span style={{ fontSize: 12, color: '#682e28' }}>
-              <b>{relevantSecurity.length} security flags</b> require faculty review (Hardware mismatch or expired replay attempts).
+        <Card style={{ padding: '14px 20px', background: 'rgba(255, 77, 77, 0.08)', border: '1px solid rgba(255, 77, 77, 0.3)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <ShieldAlert size={20} color="#ff6b6b" />
+            <span style={{ fontSize: 12.5, color: 'rgba(255, 255, 255, 0.85)' }}>
+              <b style={{ color: '#ff6b6b' }}>{relevantSecurity.length} security flags</b> require faculty review (Hardware mismatch or expired replay attempts).
             </span>
           </div>
           <Button variant="quiet" onClick={() => setSelectedSecurityEvent(relevantSecurity[0])}>

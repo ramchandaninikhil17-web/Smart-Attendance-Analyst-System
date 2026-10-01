@@ -114,7 +114,7 @@ export function StudentDetailPage({ store, toast }: StudentDetailPageProps) {
               value={attendance}
               onChange={e => setAttendance(Number(e.target.value))}
               data-testid="input-attendance-adjustment"
-              style={{ width: '100%', accentColor: '#187667' }}
+              style={{ width: '100%', accentColor: '#00d2ff' }}
             />
           </label>
           <Button

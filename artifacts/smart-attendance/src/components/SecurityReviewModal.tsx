@@ -52,15 +52,15 @@ export function SecurityReviewModal({
           </div>
         </div>
 
-        <div style={{ padding: '12px 14px', background: '#fcfbf8', border: '1px solid #e7e2d8', borderRadius: 8, fontSize: 11 }}>
+        <div style={{ padding: '14px 16px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--glass-border)', borderRadius: 10, fontSize: 11.5 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <b>Flag: {event.event}</b>
+            <b style={{ color: '#ffffff' }}>Flag: {event.event}</b>
             <RiskScoreBadge score={event.riskScore} />
           </div>
-          <p style={{ margin: '0 0 6px', color: '#687773' }}>{event.reason}</p>
-          <div style={{ fontSize: 10, color: '#8a9692' }}>
-            <div>Hardware Token / Fingerprint: <b>{event.deviceFingerprint ?? 'Unregistered browser'}</b></div>
-            <div>Location / Subnet: <b>{event.ipLocation ?? 'CHARUSAT Campus Wi-Fi'}</b></div>
+          <p style={{ margin: '0 0 8px', color: 'var(--text-secondary)' }}>{event.reason}</p>
+          <div style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>
+            <div>Hardware Token / Fingerprint: <b style={{ color: '#00d2ff' }}>{event.deviceFingerprint ?? 'Unregistered browser'}</b></div>
+            <div>Location / Subnet: <b style={{ color: '#00e699' }}>{event.ipLocation ?? 'CHARUSAT Campus Wi-Fi'}</b></div>
           </div>
         </div>
 

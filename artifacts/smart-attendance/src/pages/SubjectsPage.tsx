@@ -130,7 +130,7 @@ export function SubjectsPage({ store, toast }: SubjectsPageProps) {
               step="5"
               value={form.threshold}
               onChange={e => setForm({ ...form, threshold: Number(e.target.value) })}
-              style={{ width: '100%', accentColor: '#187667' }}
+              style={{ width: '100%', accentColor: '#00d2ff' }}
             />
             <small>Students falling below {form.threshold}% trigger automated warning notices.</small>
           </label>

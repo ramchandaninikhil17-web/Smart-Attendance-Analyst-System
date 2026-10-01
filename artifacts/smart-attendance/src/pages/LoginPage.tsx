@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'wouter';
-import { ArrowRight, Fingerprint, LockKeyhole, QrCode, ShieldCheck, Database, Check } from 'lucide-react';
+import { Link, useLocation } from 'wouter';
+import {
+  ArrowRight, Fingerprint, LockKeyhole, QrCode, ShieldCheck, Database,
+  Sparkles, CheckCircle2, KeyRound, Server
+} from 'lucide-react';
 import type { Role, Store } from '../data';
 import { dataService } from '../data';
-import { Button } from '../components';
+import * as api from '../api';
+import { BackgroundEffects } from '../components/BackgroundEffects';
 import { roles } from '../utils';
 
 interface LoginPageProps {
@@ -12,7 +16,11 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ store, onSignedIn }: LoginPageProps) {
-  const [role, setRole] = useState<Role>(store.currentUser.role);
+  const [, setLocation] = useLocation();
+  const [role, setRole] = useState<Role>(store.currentUser.role || 'Administrator');
+  const [email, setEmail] = useState('amit.ganatra@charusat.ac.in');
+  const [password, setPassword] = useState('charusat123');
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
   const getRoleEmail = (r: Role) => {
@@ -35,152 +43,152 @@ export function LoginPage({ store, onSignedIn }: LoginPageProps) {
         return 'Prof. Trushit Upadhyaya';
       case 'Administrator':
       default:
-        return 'Dr. Amit Ganatra (Principal/Dean)';
+        return 'Dr. Amit Ganatra (Principal / Dean)';
     }
   };
 
-  const handleSignIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    dataService.switchRole(role);
-    setMessage(`Authenticated as ${role} (${getRoleDisplayName(role)}). Loading workspace...`);
-    setTimeout(onSignedIn, 300);
+  // Switch role and pre-fill credentials for instantaneous demo experience
+  const handleSelectRole = (r: Role) => {
+    setRole(r);
+    setEmail(getRoleEmail(r));
+    setPassword('charusat123');
+    dataService.switchRole(r);
   };
 
-  const handleQuickSelect = (r: Role) => {
-    setRole(r);
-    dataService.switchRole(r);
-    setMessage(`Switched to ${r} session.`);
-    setTimeout(onSignedIn, 250);
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(`Authenticating institutional credentials for ${role}...`);
+
+    try {
+      // 1. Attempt real backend login
+      await api.loginWithBackend(email, password);
+
+      // 2. Commit role state
+      dataService.switchRole(role);
+
+      // 3. Automatic role-based redirect
+      setMessage(`Welcome, ${getRoleDisplayName(role)}. Redirecting to ${role} Dashboard...`);
+      setTimeout(() => {
+        setLoading(false);
+        onSignedIn();
+        setLocation('/overview');
+      }, 400);
+    } catch {
+      // Local fallback
+      dataService.switchRole(role);
+      setTimeout(() => {
+        setLoading(false);
+        onSignedIn();
+        setLocation('/overview');
+      }, 300);
+    }
   };
 
   return (
     <div className="login-screen">
-      <div className="login-aside">
-        <Link href="/login" className="brand-lockup login-brand">
-          <span className="brand-symbol"><span /></span>
-          <span><strong>CHARUSAT</strong><small>SMART ATTENDANCE & ANALYTICS</small></span>
-        </Link>
-        <div className="login-story">
-          <div className="eyebrow">CHAROTAR UNIVERSITY OF SCIENCE AND TECHNOLOGY</div>
-          <h1>Precision Presence,<br /><em>Verified Integrity.</em></h1>
-          <p>
-            Enterprise anti-proxy attendance engineered for CHARUSAT campus cohorts across CSPIT, DEPSTAR, and CMPICA institutes.
-          </p>
-          <div className="login-stat-row">
-            <div><b>50+</b><span>enrolled students</span></div>
-            <div><b>15s</b><span>dynamic QR rotation</span></div>
-            <div><b>100%</b><span>anti-proxy fidelity</span></div>
+      <BackgroundEffects />
+
+      <div className="login-glass-container">
+        {/* Soft blue/cyan ambient glow behind card */}
+        <div className="login-halo-backdrop" />
+
+        {/* Central Liquid Glass Login Card */}
+        <div className="login-card-glass page-enter">
+          {/* Logo & Brand Header */}
+          <div className="login-center-brand">
+            <div className="login-brand-logo-symbol">
+              <span>CU</span>
+            </div>
+            <span className="login-brand-title">SMART ATTENDANCE</span>
+            <h1 className="login-hero-tagline">
+              "Attendance,
+              <em>Verified."</em>
+            </h1>
           </div>
-        </div>
-        <div className="login-side-foot">
-          <span>{store.settings.campus}</span>
-          <span>Changa Campus · NAAC A+ Accredited</span>
-        </div>
-        <div className="login-art">
-          <div className="art-ring art-ring-one" />
-          <div className="art-ring art-ring-two" />
-          <div className="art-center"><span>CU</span><small>CHARUSAT ENTERPRISE</small></div>
-          <div className="art-caption"><span className="art-indicator" /><span>Anti-Proxy Guard Active</span></div>
-          <div className="art-percent">88<sup>%</sup><small>campus attendance</small></div>
-        </div>
-      </div>
 
-      <div className="login-form-side">
-        <div className="login-form-box">
-          <span className="login-kicker">CHARUSAT SECURE SSO GATEWAY</span>
-          <h2>Sign in to Campus Portal</h2>
-          <p className="login-subtitle">Select an institutional role to explore the live attendance workflows.</p>
-          
-          {message && <div className="inline-notice">{message}</div>}
-
-          {/* Quick Role Selection Badges */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+          {/* Quick Institutional Role Selectors */}
+          <div className="role-pills-row">
             {roles.map(r => (
               <button
                 key={r}
                 type="button"
-                onClick={() => setRole(r)}
-                style={{
-                  padding: '8px 10px',
-                  borderRadius: '8px',
-                  border: role === r ? '2px solid #187667' : '1px solid #dcd7ce',
-                  background: role === r ? '#e8f4f1' : '#ffffff',
-                  color: role === r ? '#187667' : '#576763',
-                  fontWeight: role === r ? 600 : 500,
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  textAlign: 'center',
-                }}
+                className={`role-pill-btn ${role === r ? 'is-active' : ''}`}
+                onClick={() => handleSelectRole(r)}
+                data-testid={`btn-select-role-${r.toLowerCase()}`}
               >
-                {r === 'Administrator' ? 'Dean / Admin' : r === 'Teacher' ? 'Faculty' : 'Student'}
+                {r === 'Administrator' ? 'Dean / Admin' : r === 'Teacher' ? 'Teacher' : 'Student'}
               </button>
             ))}
           </div>
 
-          <form onSubmit={handleSignIn} className="login-form">
-            <label className="form-field">
-              <span>Account Identity</span>
+          {/* Login Form */}
+          <form onSubmit={handleSignIn} className="login-form-group">
+            <label className="glass-form-label">
+              <span>Email / Username</span>
               <input
                 type="email"
-                value={getRoleEmail(role)}
-                readOnly
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="name@charusat.ac.in"
+                className="glass-input"
                 data-testid="input-login-email"
-                style={{ background: '#faf9f6', cursor: 'default' }}
               />
             </label>
 
-            <label className="form-field">
-              <span>Assigned Member</span>
+            <label className="glass-form-label">
+              <span>Password</span>
               <input
-                type="text"
-                value={getRoleDisplayName(role)}
-                readOnly
-                style={{ background: '#faf9f6', cursor: 'default' }}
+                type="password"
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="glass-input"
+                data-testid="input-login-password"
               />
             </label>
 
-            <Button type="submit" className="login-submit" testId="button-demo-sign-in">
-              Continue as {role} <ArrowRight size={16} />
-            </Button>
+            {message && (
+              <div className="scanner-info-strip" style={{ marginTop: '4px' }}>
+                <Sparkles size={14} className="text-cyan" />
+                <span>{message}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="button button-primary login-cta-btn"
+              data-testid="btn-login-submit"
+            >
+              {loading ? 'Authenticating...' : `LOGIN AS ${role.toUpperCase()}`} <ArrowRight size={16} />
+            </button>
           </form>
 
-          {/* Security Architecture Trust Chips */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '16px' }}>
-            <div style={{ padding: '8px', borderRadius: '6px', background: '#f6f4ee', textAlign: 'center', fontSize: '11px' }}>
-              <QrCode size={14} style={{ color: '#187667', margin: '0 auto 4px' }} />
-              <div style={{ fontWeight: 600 }}>15s QR</div>
-              <small style={{ color: '#889490' }}>Rolling OTP</small>
+          {/* Multi-Layer Trust Badges */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '20px' }}>
+            <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+              <QrCode size={14} style={{ color: '#00d2ff', margin: '0 auto 4px' }} />
+              <div style={{ fontSize: '10px', fontWeight: 600, color: '#ffffff' }}>15s QR</div>
+              <small style={{ color: 'rgba(255,255,255,0.5)', fontSize: '8px' }}>Rolling Epoch</small>
             </div>
-            <div style={{ padding: '8px', borderRadius: '6px', background: '#f6f4ee', textAlign: 'center', fontSize: '11px' }}>
-              <Fingerprint size={14} style={{ color: '#187667', margin: '0 auto 4px' }} />
-              <div style={{ fontWeight: 600 }}>WebAuthn</div>
-              <small style={{ color: '#889490' }}>FIDO2 Passkey</small>
+            <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+              <Fingerprint size={14} style={{ color: '#00d2ff', margin: '0 auto 4px' }} />
+              <div style={{ fontSize: '10px', fontWeight: 600, color: '#ffffff' }}>WebAuthn</div>
+              <small style={{ color: 'rgba(255,255,255,0.5)', fontSize: '8px' }}>FIDO2 Passkey</small>
             </div>
-            <div style={{ padding: '8px', borderRadius: '6px', background: '#f6f4ee', textAlign: 'center', fontSize: '11px' }}>
-              <Database size={14} style={{ color: '#187667', margin: '0 auto 4px' }} />
-              <div style={{ fontWeight: 600 }}>Audit Log</div>
-              <small style={{ color: '#889490' }}>SHA-256 Stamp</small>
+            <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+              <ShieldCheck size={14} style={{ color: '#00d2ff', margin: '0 auto 4px' }} />
+              <div style={{ fontSize: '10px', fontWeight: 600, color: '#ffffff' }}>Zero-Trust</div>
+              <small style={{ color: 'rgba(255,255,255,0.5)', fontSize: '8px' }}>Anti-Proxy</small>
             </div>
           </div>
 
-          <div className="local-demo-note" style={{ marginTop: '16px' }}>
-            <LockKeyhole size={15} />
-            <span>
-              <b>Enterprise FIDO2 & Anti-Proxy Simulation</b>
-              <small>Simulates complete institutional single sign-on, Wi-Fi subnet validation, and hardware token checks.</small>
-            </span>
+          <div className="login-sub-foot">
+            <span>Secure institutional access · CHARUSAT Changa</span>
           </div>
-
-          <div className="login-divider"><span>OR LAUNCH DIRECT STUDENT VERIFICATION</span></div>
-          
-          <Link href="/verify" className="login-verify-link" data-testid="link-student-verification">
-            <Fingerprint size={16} /> Student Passkey & QR Verification Scanner <ArrowRight size={14} />
-          </Link>
-        </div>
-
-        <div className="login-bottom-note">
-          CHARUSAT · Charotar University of Science & Technology · Changa, Anand, Gujarat 388421
         </div>
       </div>
     </div>

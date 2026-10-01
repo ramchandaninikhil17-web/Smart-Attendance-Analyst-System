@@ -37,12 +37,7 @@ export function App() {
   const [location, setLocation] = useLocation();
   const [toast, setToast] = useState('');
 
-  // The main website at root "/" is the 3D animated AI Website Builder
-  if (location === '/' || location === '') {
-    return <AIWebsiteBuilder />;
-  }
-
-  const isLogin = location === '/login';
+  const isLogin = location === '/login' || location === '/' || location === '';
 
   return (
     <div className={`app-shell ${store.settings.compact ? 'compact-mode' : ''}`}>

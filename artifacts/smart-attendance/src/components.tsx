@@ -39,16 +39,43 @@ export function Card({
   className = '',
   id,
   style,
+  tilt = false,
   ...props
 }: {
   children: ReactNode;
   className?: string;
   id?: string;
   style?: React.CSSProperties;
+  tilt?: boolean;
   'data-testid'?: string;
 }) {
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (!tilt || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -4;
+    const rotateY = ((x - centerX) / centerX) * 4;
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`;
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    if (!tilt) return;
+    e.currentTarget.style.transform = '';
+  };
+
   return (
-    <section id={id} style={style} className={`card ${className}`} data-testid={props['data-testid']}>
+    <section
+      id={id}
+      style={style}
+      className={`card ${className}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      data-testid={props['data-testid']}
+    >
       {children}
     </section>
   );
@@ -389,16 +416,16 @@ export function DynamicQrCode({
           y={10 * cellSize}
           width={5 * cellSize}
           height={5 * cellSize}
-          fill="#187667"
-          rx={4}
+          fill="#00d2ff"
+          rx={5}
         />
         <text
           x={12.5 * cellSize}
           y={13.2 * cellSize}
           textAnchor="middle"
-          fill="#ffffff"
+          fill="#050b14"
           fontSize={cellSize * 2.2}
-          fontWeight="bold"
+          fontWeight="900"
           fontFamily="system-ui, sans-serif"
         >
           {logoText}
